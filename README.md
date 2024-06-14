@@ -1,22 +1,20 @@
-## Step 1: Start the Metro Server
+# My React Native App
 
-First, you will need to start **Metro**, the JavaScript _bundler_ that ships _with_ React Native.
+## Getting Started
 
-To start Metro, run the following command from the _root_ of your React Native project:
+These instructions will help you set up and run the app on your local machine for Android development.
 
-```bash
-# using npm
-npm run start
-```
+### Prerequisites
 
-## Step 2: Start your Application
+- Node.js
+- npm or yarn
+- Android Studio
+- JDK (Java Development Kit)
+- React Native CLI
 
-Let Metro Bundler run in its _own_ terminal. Open a _new_ terminal from the _root_ of your React Native project. Run the following command to start your _Android_:
+### Installation
 
-### For Android
-
-```bash
-# using npm
-npm run android
-```
-
+1. Clone the repository:
+   ```sh
+   git clone https://github.com/yourusername/your-repository.git
+   cd your-repository
