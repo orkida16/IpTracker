@@ -3,7 +3,7 @@ import {useEffect, useRef, useCallback} from 'react';
 const useWebSocket = (
   url: string,
   onMessage: (data: any) => void,
-  debounceInterval = 300,
+  debounceInterval = 2500,
 ) => {
   const ws = useRef<WebSocket | null>(null);
   const reconnectTimeout = useRef<NodeJS.Timeout | null>(null);
@@ -20,9 +20,9 @@ const useWebSocket = (
       }
       lastMessageTime.current = now;
     }
-  }, [debounceInterval, onMessage]);
+  }, []);
 
-  const connectWebSocket = () => {
+  const connectWebSocket = useCallback(() => {
     if (ws.current) {
       ws.current.close();
     }
@@ -31,19 +31,17 @@ const useWebSocket = (
 
     ws.current.onopen = () => {
       console.log('WebSocket connection opened');
-      setTimeout(() => {
-        try {
-          ws.current?.send(
-            JSON.stringify({
-              method: 'SUBSCRIBE',
-              params: ['btcusdt@aggTrade'],
-              id: 1,
-            }),
-          );
-        } catch (error) {
-          console.error('Error sending message:', error);
-        }
-      }, 100);
+      try {
+        ws.current?.send(
+          JSON.stringify({
+            method: 'SUBSCRIBE',
+            params: ['btcusdt@aggTrade'],
+            id: 1,
+          }),
+        );
+      } catch (error) {
+        console.error('Error sending message:', error);
+      }
     };
 
     ws.current.onmessage = event => {
@@ -68,7 +66,7 @@ const useWebSocket = (
         }, 5000); // try to reconnect after 5 seconds
       }
     };
-  };
+  }, [processMessageQueue, url]);
 
   useEffect(() => {
     connectWebSocket();
@@ -81,7 +79,7 @@ const useWebSocket = (
         clearTimeout(reconnectTimeout.current);
       }
     };
-  }, [url, processMessageQueue]);
+  }, [connectWebSocket]);
 
   return ws.current;
 };
