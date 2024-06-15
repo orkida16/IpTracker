@@ -1,46 +1,63 @@
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect} from 'react';
 import {StyleSheet, SafeAreaView, ScrollView, Dimensions} from 'react-native';
 import {LineChart} from 'react-native-chart-kit';
 import useWebSocket from '../../../app/hooks/useWebSocket';
 import {UIBox, UIText} from '../../../app/components/UI';
+import {actionsMarketDataScreen} from '../store/actions';
+import {useAppDispatch, useAppSelector} from '../../../store';
+import {
+  selectPrice,
+  selectPriceData,
+  selectQuantity,
+  selectTimestamp,
+} from '../store/selectors/marketDataSelectors';
 
 const MarketDataScreen = () => {
-  const [price, setPrice] = useState<number | null>(null);
-  const [quantity, setQuantity] = useState<number | null>(null);
-  const [timestamp, setTimestamp] = useState<string | null>(null);
-  const [priceData, setPriceData] = useState<number[]>([]);
+  const dispatch = useAppDispatch();
 
-  const handleWebSocketMessage = (data: any) => {
-    if (data.e === 'aggTrade') {
-      const newPrice = parseFloat(data.p);
-      const newQuantity = parseFloat(data.q);
-      const newTimestamp = new Date(data.T).toLocaleTimeString();
-      if (!isNaN(newPrice) && !isNaN(newQuantity) && newTimestamp) {
-        setPrice(newPrice);
-        setQuantity(newQuantity);
-        setTimestamp(newTimestamp);
+  const priceData = useAppSelector(selectPriceData);
+  const price = useAppSelector(selectPrice);
+  const quantity = useAppSelector(selectQuantity);
+  const timestamp = useAppSelector(selectTimestamp);
 
-        setPriceData(prevData => {
-          const updatedData = [...prevData, newPrice];
-          return updatedData.length > 20 ? updatedData.slice(1) : updatedData;
-        });
-      } else {
-        console.error('Invalid data received from WebSocket:', data);
+  useEffect(() => {
+    dispatch(actionsMarketDataScreen.landing());
+    return () => {
+      dispatch(actionsMarketDataScreen.dismiss());
+    };
+  }, [dispatch]);
+
+  const handleWebSocketMessage = useCallback(
+    (data: any) => {
+      if (data.e === 'aggTrade') {
+        const newPrice = parseFloat(data.p);
+        const newQuantity = parseFloat(data.q);
+        const newTimestamp = new Date(data.T).toLocaleTimeString();
+        if (!isNaN(newPrice) && !isNaN(newQuantity) && newTimestamp) {
+          dispatch(
+            actionsMarketDataScreen.onGetWebsocketDataSuccess({
+              price: newPrice,
+              quantity: newQuantity,
+              timestamp: newTimestamp,
+            }),
+          );
+        } else {
+          console.error('Invalid data received from WebSocket:', data);
+        }
       }
-    }
-  };
+    },
+    [dispatch],
+  );
 
   useWebSocket(
     'wss://stream.binance.com:443/ws/btcusdt',
     handleWebSocketMessage,
   );
 
-  useEffect(() => {
-    return () => {};
-  }, []);
-
   const hasValidData =
-    priceData.length > 0 && priceData.every(value => !isNaN(value));
+    priceData &&
+    priceData.length > 0 &&
+    priceData.every((value: number) => !isNaN(value));
 
   return (
     <SafeAreaView style={styles.container}>

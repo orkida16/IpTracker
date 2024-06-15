@@ -11,7 +11,8 @@ import {
 } from 'redux-persist/es/constants';
 import {persistStore} from 'redux-persist';
 import rootSaga from './rootSaga';
-import dashboardConfigsReducerFactory from "../modules/dashboard/store/reducer";
+import dashboardConfigsReducerFactory from '../modules/dashboard/store/reducer';
+import marketDataConfigsReducerFactory from '../modules/marketData/store/reducer';
 
 export default () => {
   const sagaMiddleware = createSagaMiddleware();
@@ -19,6 +20,7 @@ export default () => {
   const reducer = combineReducers({
     ...rootReducer,
     allDashboardConfigs: dashboardConfigsReducerFactory(),
+    allMarketDataConfigs: marketDataConfigsReducerFactory(),
   });
   const store = configureStore({
     reducer,
