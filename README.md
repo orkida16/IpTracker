@@ -16,5 +16,11 @@ These instructions will help you set up and run the app on your local machine fo
 
 1. Clone the repository:
    ```sh
-   git clone https://github.com/yourusername/your-repository.git
-   cd your-repository
+   git clone https://github.com/orkida16/IpTracker.git
+   cd MyIpTracker 
+
+1. Run in terminal:
+    ```sh
+   npm install
+   npm run start
+   npm run android
